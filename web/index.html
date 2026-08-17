@@ -14,7 +14,10 @@
         <span id="status-dot" class="status-dot"></span>
         <span id="status-text">연결 안 됨</span>
       </div>
-      <button id="connect-btn" type="button">연결하기</button>
+      <div id="connection-actions">
+        <button id="rescan-btn" type="button" title="장치 다시 검색" aria-label="장치 다시 검색">⟳</button>
+        <button id="connect-btn" type="button">연결하기</button>
+      </div>
     </header>
 
     <!-- 탭 전환 -->
@@ -100,6 +103,10 @@
         </div>
       </div>
     </div>
+
+    <!-- 비차단 알림 (연결 실패 등). alert()와 달리 화면을 가로막지 않고
+         터미널/게임패드 탭이 계속 보이는 상태에서 잠깐 표시됐다가 사라짐 -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
 
   <script src="ble.js"></script>
