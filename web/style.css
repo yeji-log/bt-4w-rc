@@ -267,22 +267,18 @@ button {
 /* ---------- 게임패드 탭 ---------- */
 .gamepad-toolbar {
   display: flex;
-  gap: 8px;
+  justify-content: flex-end;
   margin-bottom: 12px;
 }
-.gamepad-toolbar button {
-  padding: 8px 14px;
+#gamepad-settings-btn {
+  width: 44px;  /* 터치 최소 권장 크기(iOS HIG 44pt) 확보 */
+  height: 44px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--text);
-  font-size: 13px;
+  font-size: 20px;
+  line-height: 1;
   cursor: pointer;
-}
-#gamepad-settings-toggle[aria-pressed="true"] {
-  background: var(--warn);
-  color: #201400;
-  border-color: var(--warn);
 }
 
 .gamepad-layout {
@@ -358,12 +354,6 @@ button {
   pointer-events: none;
 }
 
-#gamepad-tab.settings-mode .pad-btn {
-  outline: 2px dashed var(--warn);
-  pointer-events: auto; /* 연결 안 돼 있어도 설정은 가능해야 함 */
-  opacity: 1;
-}
-
 .gamepad-hint {
   text-align: center;
   font-size: 12px;
@@ -393,9 +383,17 @@ button {
   width: 100%;
   max-width: 320px;
 }
+#gamepad-settings-modal .modal-card {
+  max-width: 360px; /* 라벨 + 입력창이 나란히 들어갈 여유 확보 */
+}
 .modal-card h2 {
   font-size: 15px;
   margin: 0 0 12px;
+}
+.modal-card p {
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
 }
 .modal-card input {
   width: 100%;
@@ -412,20 +410,63 @@ button {
   gap: 8px;
   margin-top: 16px;
 }
+.modal-actions.modal-actions-split {
+  justify-content: space-between; /* 초기화(왼쪽) ↔ 닫기(오른쪽)처럼 분리 배치 */
+}
 .modal-actions button {
   padding: 8px 16px;
+  min-height: 40px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
   font-weight: 600;
 }
-#mapping-modal-cancel {
+.modal-actions button.btn-secondary,
+#confirm-modal-cancel {
   background: var(--surface-2);
   color: var(--text);
 }
-#mapping-modal-save {
+.modal-actions button.btn-primary,
+#confirm-modal-ok,
+#gamepad-settings-close {
   background: var(--accent);
   color: #05161f;
+}
+.modal-actions button.btn-subtle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* ---------- 게임패드 설정 패널 목록 ---------- */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.settings-row label {
+  font-size: 13px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.settings-row input {
+  width: 100px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  text-align: right;
 }
 
 /* ==========================================================

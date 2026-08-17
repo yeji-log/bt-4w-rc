@@ -18,6 +18,34 @@ function showToast(message, isError = false) {
   }, 3000);
 }
 
+// 브라우저 기본 confirm()을 대체하는 자체 확인 모달.
+// (일부 앱/브라우저에서 confirm()의 버튼 라벨이 엉뚱하게 표시되는 문제를 피하기 위함)
+function showConfirm(message, onConfirm) {
+  const modal = document.getElementById('confirm-modal');
+  const messageEl = document.getElementById('confirm-modal-message');
+  const okBtn = document.getElementById('confirm-modal-ok');
+  const cancelBtn = document.getElementById('confirm-modal-cancel');
+
+  messageEl.textContent = message;
+  modal.classList.add('open');
+
+  function cleanup() {
+    modal.classList.remove('open');
+    okBtn.removeEventListener('click', handleOk);
+    cancelBtn.removeEventListener('click', handleCancel);
+  }
+  function handleOk() {
+    cleanup();
+    onConfirm();
+  }
+  function handleCancel() {
+    cleanup();
+  }
+
+  okBtn.addEventListener('click', handleOk);
+  cancelBtn.addEventListener('click', handleCancel);
+}
+
 function initConnectionBar() {
   const connectBtn = document.getElementById('connect-btn');
   const rescanBtn = document.getElementById('rescan-btn');
