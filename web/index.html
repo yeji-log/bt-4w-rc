@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>블루투스 RC카 컨트롤러</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 상단 공통 연결 바: 탭이 바뀌어도 항상 노출 -->
+    <header id="connection-bar">
+      <div id="connection-status">
+        <span id="status-dot" class="status-dot"></span>
+        <span id="status-text">연결 안 됨</span>
+      </div>
+      <button id="connect-btn" type="button">연결하기</button>
+    </header>
+
+    <!-- 탭 전환 -->
+    <nav id="tab-bar">
+      <button class="tab-btn active" data-tab="terminal-tab" type="button">터미널</button>
+      <button class="tab-btn" data-tab="gamepad-tab" type="button">게임패드</button>
+    </nav>
+
+    <main id="tab-content">
+      <!-- 터미널 탭 -->
+      <section id="terminal-tab" class="tab-panel active">
+        <div id="terminal-log" class="terminal-log"></div>
+        <div class="terminal-input-row">
+          <input id="terminal-input" type="text" placeholder="보낼 명령을 입력하세요 (예: F)" disabled />
+          <button id="terminal-send" type="button" disabled>전송</button>
+        </div>
+        <div class="terminal-options-row">
+          <label>
+            <input id="terminal-newline-toggle" type="checkbox" checked />
+            전송 시 개행(\n) 추가
+          </label>
+          <button id="terminal-clear" type="button">로그 지우기</button>
+        </div>
+      </section>
+
+      <!-- 게임패드 탭 -->
+      <section id="gamepad-tab" class="tab-panel">
+        <div class="gamepad-toolbar">
+          <button id="gamepad-settings-toggle" type="button" aria-pressed="false">버튼 설정</button>
+          <button id="gamepad-reset" type="button">기본값으로 초기화</button>
+        </div>
+
+        <div class="gamepad-layout">
+          <div class="dpad">
+            <button class="pad-btn pad-up" data-key="up" type="button">
+              <span class="pad-btn-icon">▲</span>
+              <span class="pad-btn-value"></span>
+            </button>
+            <button class="pad-btn pad-left" data-key="left" type="button">
+              <span class="pad-btn-icon">◀</span>
+              <span class="pad-btn-value"></span>
+            </button>
+            <button class="pad-btn pad-stop" data-key="stop" type="button">
+              <span class="pad-btn-icon">■</span>
+              <span class="pad-btn-value"></span>
+            </button>
+            <button class="pad-btn pad-right" data-key="right" type="button">
+              <span class="pad-btn-icon">▶</span>
+              <span class="pad-btn-value"></span>
+            </button>
+            <button class="pad-btn pad-down" data-key="down" type="button">
+              <span class="pad-btn-icon">▼</span>
+              <span class="pad-btn-value"></span>
+            </button>
+          </div>
+
+          <div class="action-pad">
+            <button class="pad-btn pad-action" data-key="action1" type="button">
+              <span class="pad-btn-icon">A</span>
+              <span class="pad-btn-value"></span>
+            </button>
+            <button class="pad-btn pad-action" data-key="action2" type="button">
+              <span class="pad-btn-icon">B</span>
+              <span class="pad-btn-value"></span>
+            </button>
+          </div>
+        </div>
+
+        <p class="gamepad-hint">
+          "버튼 설정"을 켠 뒤 버튼을 누르면 전송할 값을 바꿀 수 있어요. 가로로 돌리면 더 편하게 조작할 수 있어요.
+        </p>
+      </section>
+    </main>
+
+    <!-- 버튼 값 편집 모달 -->
+    <div id="mapping-modal" class="modal">
+      <div class="modal-card">
+        <h2>버튼 값 설정 — <span id="mapping-modal-key"></span></h2>
+        <input id="mapping-modal-input" type="text" placeholder="전송할 값 입력" />
+        <div class="modal-actions">
+          <button id="mapping-modal-cancel" type="button">취소</button>
+          <button id="mapping-modal-save" type="button">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="ble.js"></script>
+  <script src="storage.js"></script>
+  <script src="terminal.js"></script>
+  <script src="gamepad.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

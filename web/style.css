@@ -1,0 +1,388 @@
+:root {
+  --bg: #121417;
+  --surface: #1c1f24;
+  --surface-2: #262a31;
+  --text: #eef1f4;
+  --text-dim: #9aa3ad;
+  --accent: #3fa9f5;
+  --danger: #e5484d;
+  --ok: #33c17a;
+  --warn: #f5a623;
+  --border: #333941;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+  overscroll-behavior: none;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh; /* iOS 주소창 유무에 따른 100vh 흔들림 보정 */
+  width: 100%;
+}
+
+/* ---------- 상단 공통 연결 바 ---------- */
+#connection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+#connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+.status-dot.status-connected { background: var(--ok); }
+.status-dot.status-connecting { background: var(--warn); animation: pulse 1s infinite; }
+.status-dot.status-disconnected { background: var(--text-dim); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+#connect-btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #05161f;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+#connect-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ---------- 탭 전환 ---------- */
+#tab-bar {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+.tab-btn.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+#tab-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.tab-panel {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 16px;
+}
+.tab-panel.active {
+  display: flex;
+}
+
+/* ---------- 터미널 탭 ---------- */
+.terminal-log {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.log-line { padding: 2px 0; word-break: break-all; }
+.log-line.log-sent { color: var(--accent); }
+.log-line.log-received { color: var(--ok); }
+.log-line.log-error { color: var(--danger); }
+
+.terminal-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.terminal-input-row input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+}
+.terminal-input-row input:disabled {
+  opacity: 0.5;
+}
+.terminal-input-row button {
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #05161f;
+  font-weight: 600;
+  cursor: pointer;
+}
+.terminal-input-row button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.terminal-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.terminal-options-row button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ---------- 게임패드 탭 ---------- */
+.gamepad-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.gamepad-toolbar button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+#gamepad-settings-toggle[aria-pressed="true"] {
+  background: var(--warn);
+  color: #201400;
+  border-color: var(--warn);
+}
+
+.gamepad-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  min-height: 0;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(56px, 84px));
+  grid-template-rows: repeat(3, minmax(56px, 84px));
+  grid-template-areas:
+    ".    up    ."
+    "left stop  right"
+    ".    down  .";
+  gap: 8px;
+}
+.pad-up { grid-area: up; }
+.pad-left { grid-area: left; }
+.pad-stop { grid-area: stop; }
+.pad-right { grid-area: right; }
+.pad-down { grid-area: down; }
+
+.action-pad {
+  display: flex;
+  gap: 16px;
+}
+
+.pad-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: none;
+  border-radius: 16px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 20px;
+  user-select: none;
+  touch-action: none;
+  cursor: pointer;
+}
+.action-pad .pad-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 700;
+}
+.pad-stop { background: var(--danger); color: #fff; }
+
+.pad-btn-value {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: ui-monospace, monospace;
+}
+.pad-stop .pad-btn-value { color: rgba(255,255,255,0.8); }
+
+.pad-btn.pressed {
+  background: var(--accent);
+  color: #05161f;
+  transform: scale(0.95);
+}
+
+#gamepad-tab.disabled .pad-btn {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+#gamepad-tab.settings-mode .pad-btn {
+  outline: 2px dashed var(--warn);
+  pointer-events: auto; /* 연결 안 돼 있어도 설정은 가능해야 함 */
+  opacity: 1;
+}
+
+.gamepad-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 12px 0 0;
+}
+
+/* ---------- 버튼 값 편집 모달 ---------- */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 16px;
+}
+.modal.open {
+  display: flex;
+}
+.modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  max-width: 320px;
+}
+.modal-card h2 {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+.modal-card input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.modal-actions button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+#mapping-modal-cancel {
+  background: var(--surface-2);
+  color: var(--text);
+}
+#mapping-modal-save {
+  background: var(--accent);
+  color: #05161f;
+}
+
+/* ==========================================================
+   화면 회전 대응 (Phase 5)
+   - 세로: 방향키가 위, 액션 버튼이 아래로 쌓이는 기본 레이아웃
+   - 가로: 실제 게임 컨트롤러처럼 방향키는 왼쪽, 액션 버튼은 오른쪽에 배치
+   ========================================================== */
+@media (orientation: landscape) {
+  .gamepad-layout {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 8vw;
+  }
+
+  .action-pad {
+    flex-direction: column;
+  }
+
+  /* 가로 모드는 세로 공간이 좁아지므로 터미널 로그 높이를 자동으로 줄여줌 */
+  .terminal-log {
+    font-size: 12px;
+  }
+}
+
+@media (orientation: portrait) {
+  .gamepad-layout {
+    flex-direction: column;
+  }
+}
+
+/* 아주 좁은 세로 화면(작은 스마트폰)에서 D-pad 버튼이 과하게 크지 않도록 축소 */
+@media (orientation: portrait) and (max-width: 360px) {
+  .dpad {
+    grid-template-columns: repeat(3, minmax(48px, 64px));
+    grid-template-rows: repeat(3, minmax(48px, 64px));
+  }
+}
