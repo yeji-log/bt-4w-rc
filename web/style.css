@@ -24,6 +24,16 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* 패드/스마트폰 우선: 네이티브 앱처럼 느껴지도록 터치 상호작용 다듬기 */
+button, input, .tab-btn {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  touch-action: manipulation; /* 더블탭 확대/딜레이 방지. D-pad 등 드래그가 필요한 pad-btn은 개별적으로 touch-action:none 유지 */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 #app {
   display: flex;
   flex-direction: column;
@@ -37,7 +47,7 @@ html, body {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 24px;
+  bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px));
   transform: translate(-50%, 12px);
   max-width: calc(100% - 32px);
   padding: 10px 16px;
@@ -67,6 +77,10 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
+  /* 아이폰 노치/펀치홀 영역(safe area)에 버튼이 가려지지 않도록 */
+  padding-top: max(12px, env(safe-area-inset-top));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -102,6 +116,7 @@ html, body {
 }
 
 #connect-btn {
+  min-height: 44px; /* 터치 최소 권장 크기(iOS HIG 44pt) 확보 */
   padding: 8px 18px;
   border: none;
   border-radius: 8px;
@@ -117,13 +132,13 @@ html, body {
 }
 
 #rescan-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;  /* 터치 최소 권장 크기(iOS HIG 44pt) 확보 */
+  height: 44px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--surface-2);
   color: var(--text);
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
 }
@@ -175,6 +190,10 @@ html, body {
   flex-direction: column;
   height: 100%;
   padding: 12px 16px;
+  /* 가로 모드에서 아이폰 노치/홈 인디케이터가 있는 쪽 여백 확보 */
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 .tab-panel.active {
   display: flex;

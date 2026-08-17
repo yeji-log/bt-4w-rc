@@ -38,11 +38,17 @@ function initConnectionBar() {
     try {
       await BLE.connect();
     } catch (err) {
-      // 사용자가 기기 선택 화면에서 취소/뒤로가기 한 경우 (NotFoundError, 정상 흐름).
-      // 이때는 알림 없이 조용히 원래 화면(터미널/게임패드 탭)으로 돌아감.
-      if (err.name === 'NotFoundError') return;
+      // 사용자가 기기 선택 화면(iOS Bluefy / 안드로이드 Chrome이 직접 그리는
+      // 시스템 레벨 팝업, 우리 코드가 손댈 수 없는 영역)에서 취소/뒤로가기 한
+      // 경우도 NotFoundError로 여기 들어옴 — 정상 흐름.
+      // alert() 대신 비차단 토스트로 "다시 찾는 법"만 살짝 알려주고,
+      // 터미널/게임패드 탭은 막힘 없이 바로 그대로 보이게 함.
+      if (err.name === 'NotFoundError') {
+        showToast('기기를 못 찾았어요. HM-10 전원·거리 확인 후 🔄 새로고침으로 다시 찾아보세요.');
+        return;
+      }
 
-      // 그 외 실제 오류(연결 실패, 미지원 브라우저 등)만 화면을 가리지 않는 토스트로 표시
+      // 그 외 실제 오류(연결 실패, 미지원 브라우저 등)
       showToast(err.message || '연결에 실패했습니다. 새로고침 버튼으로 다시 검색해보세요.', true);
     }
   }
