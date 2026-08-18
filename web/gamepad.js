@@ -16,8 +16,6 @@ const KEY_LABELS = {
 
 function initGamepad() {
   let mapping = loadMapping();
-  let repeatTimer = null;
-  const REPEAT_MS = 150; // 방향 버튼을 누르고 있는 동안 반복 전송하는 간격 (쓰로틀링)
 
   const tabEl = document.getElementById('gamepad-tab');
   const buttons = tabEl.querySelectorAll('.pad-btn');
@@ -74,37 +72,29 @@ function initGamepad() {
     });
   }
 
-  function stopRepeat() {
-    if (repeatTimer) {
-      clearTimeout(repeatTimer);
-      repeatTimer = null;
-    }
+  // 방향 버튼은 누르고 있는 동안만 움직이는 방식(조이스틱형) 대신,
+  // 한 번 탭하면 다른 방향/■(정지)을 누를 때까지 계속 그 방향으로 움직이는
+  // 방식(토글형)으로 동작합니다. 아두이노도 마지막으로 받은 F/B/L/R/S 명령을
+  // 계속 유지하므로, 굳이 계속 눌러 반복 전송할 필요가 없습니다.
+  // 지금 어느 방향이 켜져 있는지는 해당 버튼에 'engaged' 클래스로 표시합니다.
+  function setEngaged(key) {
+    buttons.forEach((btn) => {
+      const isDirection = DIRECTION_KEYS.includes(btn.dataset.key);
+      btn.classList.toggle('engaged', isDirection && btn.dataset.key === key);
+    });
   }
 
   function press(key) {
     const value = mapping[key];
     BLE.send(value + '\n').catch(() => {});
-    if (DIRECTION_KEYS.includes(key)) {
-      stopRepeat();
-      // setInterval 대신, 이전 전송이 끝난 뒤에만 다음 전송을 예약합니다.
-      // (BLE 응답이 150ms보다 느려질 때 전송이 큐에 계속 쌓여 밀리는 것을 방지)
-      const scheduleNext = () => {
-        repeatTimer = setTimeout(() => {
-          BLE.send(value + '\n')
-            .catch(() => {})
-            .then(scheduleNext);
-        }, REPEAT_MS);
-      };
-      scheduleNext();
-    }
-  }
 
-  function release(key) {
-    if (DIRECTION_KEYS.includes(key)) {
-      stopRepeat();
-      BLE.send(mapping.stop + '\n').catch(() => {});
+    if (key === 'stop') {
+      setEngaged(null); // 정지 버튼: 켜져 있던 방향 표시 해제
+    } else if (DIRECTION_KEYS.includes(key)) {
+      setEngaged(key); // 방향 버튼: 이 방향을 계속 유지 중으로 표시
     }
-    // 액션 버튼(action1, action2 등)은 클릭 1회로 단발 전송, 뗄 때 별도 동작 없음
+    // 액션 버튼(action1/action2 등)은 그때그때 값이 바뀌는 단발 명령이라
+    // 방향 유지 표시 대상이 아님
   }
 
   settingsBtn.addEventListener('click', () => {
@@ -136,8 +126,7 @@ function initGamepad() {
 
     const onPressEnd = (e) => {
       e.preventDefault();
-      btn.classList.remove('pressed');
-      release(key);
+      btn.classList.remove('pressed'); // 탭 시각 효과만 해제 — BLE로 정지 명령을 보내지 않음
     };
 
     btn.addEventListener('touchstart', onPressStart, { passive: false });
@@ -152,6 +141,7 @@ function initGamepad() {
 
   BLE.onStateChange((state) => {
     tabEl.classList.toggle('disabled', state !== 'connected');
+    if (state !== 'connected') setEngaged(null); // 연결 끊기면 방향 유지 표시도 초기화
   });
 
   buildSettingsList();

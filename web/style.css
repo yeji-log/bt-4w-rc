@@ -349,6 +349,14 @@ button {
   transform: scale(0.95);
 }
 
+/* 방향 버튼을 탭한 뒤 계속 그 방향으로 움직이고 있는 동안 켜져 있는 표시
+   (.pressed는 손을 뗀 순간 사라지는 순간 효과라 별도 클래스로 구분) */
+.pad-btn.engaged {
+  background: var(--accent);
+  color: #05161f;
+  box-shadow: 0 0 0 3px rgba(63, 169, 245, 0.35);
+}
+
 #gamepad-tab.disabled .pad-btn {
   opacity: 0.4;
   pointer-events: none;
