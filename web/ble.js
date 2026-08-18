@@ -19,6 +19,12 @@ const BLE = (() => {
   let characteristic = null;
   let state = 'disconnected'; // 'disconnected' | 'connecting' | 'connected'
 
+  // GATT는 한 번에 하나의 작업만 허용합니다. writeValue()를 겹쳐서 호출하면
+  // "GATT operation already in progress" 에러가 나면서 뒤에 보낸 명령이 그대로
+  // 무시되는데(게임패드에서 방향 전환 시 명령이 씹히던 원인), 이걸 막기 위해
+  // 모든 write를 이 큐로 한 줄로 세워서 순서대로만 실행합니다.
+  let writeQueue = Promise.resolve();
+
   const stateListeners = new Set();
   const dataListeners = new Set();
 
@@ -43,6 +49,8 @@ const BLE = (() => {
     // 예기치 않게 끊겼을 때도 이 이벤트가 호출되어 UI 상태를 자동으로 정리해줌
     characteristic = null;
     setState('disconnected');
+    // 끊긴 연결에 걸려 있던 대기 write가 다음 연결의 write를 막지 않도록 큐 리셋
+    writeQueue = Promise.resolve();
   }
 
   function handleNotify(event) {
@@ -86,14 +94,24 @@ const BLE = (() => {
     }
   }
 
-  async function send(text) {
+  function send(text) {
     if (state !== 'connected' || !characteristic) {
-      throw new Error('블루투스가 연결되어 있지 않습니다.');
+      return Promise.reject(new Error('블루투스가 연결되어 있지 않습니다.'));
     }
-    const bytes = new TextEncoder().encode(text);
-    for (let i = 0; i < bytes.length; i += BLE_WRITE_CHUNK_SIZE) {
-      await characteristic.writeValue(bytes.slice(i, i + BLE_WRITE_CHUNK_SIZE));
-    }
+    // 이전에 대기 중인 write가 있으면(성공하든 실패하든) 그 뒤에 이어서 실행 —
+    // 절대로 writeValue() 호출을 동시에 겹치게 하지 않음
+    const run = writeQueue.then(async () => {
+      if (state !== 'connected' || !characteristic) {
+        throw new Error('블루투스가 연결되어 있지 않습니다.');
+      }
+      const bytes = new TextEncoder().encode(text);
+      for (let i = 0; i < bytes.length; i += BLE_WRITE_CHUNK_SIZE) {
+        await characteristic.writeValue(bytes.slice(i, i + BLE_WRITE_CHUNK_SIZE));
+      }
+    });
+    // 이 요청이 실패해도 큐 자체는 끊기지 않고 다음 요청으로 이어지도록 처리
+    writeQueue = run.catch(() => {});
+    return run;
   }
 
   function getState() {

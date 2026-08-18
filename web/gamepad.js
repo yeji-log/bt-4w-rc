@@ -76,7 +76,7 @@ function initGamepad() {
 
   function stopRepeat() {
     if (repeatTimer) {
-      clearInterval(repeatTimer);
+      clearTimeout(repeatTimer);
       repeatTimer = null;
     }
   }
@@ -86,9 +86,16 @@ function initGamepad() {
     BLE.send(value + '\n').catch(() => {});
     if (DIRECTION_KEYS.includes(key)) {
       stopRepeat();
-      repeatTimer = setInterval(() => {
-        BLE.send(value + '\n').catch(() => {});
-      }, REPEAT_MS);
+      // setInterval 대신, 이전 전송이 끝난 뒤에만 다음 전송을 예약합니다.
+      // (BLE 응답이 150ms보다 느려질 때 전송이 큐에 계속 쌓여 밀리는 것을 방지)
+      const scheduleNext = () => {
+        repeatTimer = setTimeout(() => {
+          BLE.send(value + '\n')
+            .catch(() => {})
+            .then(scheduleNext);
+        }, REPEAT_MS);
+      };
+      scheduleNext();
     }
   }
 
